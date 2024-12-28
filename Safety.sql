@@ -3,7 +3,7 @@ from sr.safety
 where Audit_Type = 'Physical' 
 group by Site_ID,Department
 order by Department;
-select 
+
 
 
 
