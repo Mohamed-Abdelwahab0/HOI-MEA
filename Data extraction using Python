@@ -1,0 +1,39 @@
+import pandas as pd
+
+df = pd.read_csv('yousseftr1.csv', encoding='latin1', header=0)
+
+
+desired_quarters = ['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4',
+                    '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4',
+                    '2022-Q1', '2022-Q2', '2022-Q3', '2022-Q4',
+                    '2023-Q1']
+filtered_df = df[df['Quarter_code'].isin(desired_quarters)]
+
+# Filter for Vodafone and Nokia clients 
+vodafone_df = filtered_df[filtered_df['Cleint'] == 'Vodafone']
+nokia_df = filtered_df[filtered_df['Cleint'] == 'NOKIA']
+
+# Filter for revenue > 3,000,000 
+def filter_revenue_gt_3m(df):
+    return df[df['Revenue'] > 3000000]
+
+# Apply revenue filter to DataFrames 
+if desired_quarters:  # Apply filter only if quarters are specified
+    filtered_df = filter_revenue_gt_3m(filtered_df.copy())  # Avoid modifying original DataFrame
+    vodafone_df = filter_revenue_gt_3m(vodafone_df.copy())
+    nokia_df = filter_revenue_gt_3m(nokia_df.copy())
+
+# Select desired columns
+desired_columns = ['Cleint', 'Revenue', 'Quarter_code']
+
+vodafone_totals = (vodafone_df[vodafone_df['Revenue'] > 3000000].groupby(['Cleint', 'Quarter_code'])['Revenue'].sum().reset_index())
+
+nokia_totals = (nokia_df[nokia_df['Revenue'] > 3000000].groupby(['Cleint', 'Quarter_code'])['Revenue'].sum().reset_index())
+
+print("\nTotal Revenue by Quarter (Vodafone & Nokia, Above 3,000,000):")
+# Combine and display Vodafone and Nokia totals (assuming desired)
+if (not vodafone_totals.empty) or (not nokia_totals.empty):
+    combined_totals = pd.concat([vodafone_totals, nokia_totals], ignore_index=True)
+    print(combined_totals[['Cleint', 'Quarter_code', 'Revenue']])  # Select desired columns
+else:
+    print("No Vodafone or Nokia clients meeting the criteria for total revenue")
